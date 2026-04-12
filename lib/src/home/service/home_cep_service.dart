@@ -47,6 +47,24 @@ class HomeCepService {
     }
   }
 
+  Future<List<ViaCepAddress>> consultarEndereco(String uf, String cidade, String logradouro) async {
+    if (uf.isEmpty || cidade.isEmpty || logradouro.isEmpty) {
+      throw FormatException('UF, cidade e logradouro são obrigatórios.');
+    }
+    try {
+      final addresses = await _remote.fetchByAddress(uf, cidade, logradouro);
+      // Salva os endereços válidos no histórico
+      for (final address in addresses) {
+        if (!address.erro) {
+          await _local.addToFront(address);
+        }
+      }
+      return addresses;
+    } on DioException catch (e) {
+      throw StateError(_messageFromDio(e));
+    }
+  }
+
   /**
    * Busca a geocodificação do endereço usando a API do Google Maps (para web)
    */

@@ -30,6 +30,21 @@ abstract class _HomeController with Store {
   @observable
   String? avisoBuscaCepDigitado;
 
+  @observable
+  String tipoBusca = 'cep'; // 'cep' ou 'endereco'
+
+  @observable
+  String ufBusca = '';
+
+  @observable
+  String cidadeBusca = '';
+
+  @observable
+  String logradouroBusca = '';
+
+  @observable
+  List<ViaCepAddress> enderecosEncontrados = [];
+
   static String _somenteDigitos(String value) =>
       value.replaceAll(RegExp(r'\D'), '');
 
@@ -44,6 +59,27 @@ abstract class _HomeController with Store {
   @action
   void limparErro() {
     errorMessage = null;
+  }
+
+  @action
+  void alterarTipoBusca(String novoTipo) {
+    tipoBusca = novoTipo;
+    if (novoTipo == 'cep') {
+      limparBuscaEndereco();
+    } else {
+      // Limpar CEP se necessário
+      avisoBuscaInline = null;
+      avisoBuscaCepDigitado = null;
+    }
+  }
+
+  @action
+  void limparBuscaEndereco() {
+    ufBusca = '';
+    cidadeBusca = '';
+    logradouroBusca = '';
+    enderecosEncontrados.clear();
+    avisoBuscaInline = null;
   }
 
   @action
@@ -84,6 +120,40 @@ abstract class _HomeController with Store {
       avisoBuscaInline = e.message;
     } catch (_) {
       avisoBuscaCepDigitado = textoDigitado.isEmpty ? null : textoDigitado;
+      avisoBuscaInline = 'Erro inesperado. Tente novamente.';
+    } finally {
+      loading = false;
+    }
+  }
+
+  @action
+  Future<void> buscarEndereco() async {
+    limparErro();
+    enderecosEncontrados.clear();
+
+    if (ufBusca.isEmpty || cidadeBusca.isEmpty || logradouroBusca.isEmpty) {
+      avisoBuscaInline = 'Preencha UF, cidade e logradouro.';
+      return;
+    }
+
+    loading = true;
+    try {
+      final results = await _service.consultarEndereco(ufBusca, cidadeBusca, logradouroBusca);
+      enderecosEncontrados.addAll(results);
+      if (results.isEmpty) {
+        avisoBuscaInline = 'Nenhum endereço encontrado.';
+      } else {
+        avisoBuscaInline = '${results.length} endereço(s) encontrado(s).';
+      }
+      // Recarrega o histórico
+      final items = await _service.loadHistory();
+      history.clear();
+      history.addAll(items);
+    } on FormatException catch (e) {
+      avisoBuscaInline = e.message;
+    } on StateError catch (e) {
+      avisoBuscaInline = e.message;
+    } catch (_) {
       avisoBuscaInline = 'Erro inesperado. Tente novamente.';
     } finally {
       loading = false;

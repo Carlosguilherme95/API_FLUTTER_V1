@@ -11,6 +11,7 @@ import '../components/cep_search_loading_overlay.dart';
 import '../components/cep_search_not_found_panel.dart';
 import '../components/consulted_addresses_list.dart';
 import '../components/empty_cep_search_placeholder.dart';
+import '../components/empty_address_search_placeholder.dart';
 import '../controller/home_controller.dart';
 import '../repositories/address_history_repository.dart';
 import '../repositories/via_cep_repository.dart';
@@ -25,8 +26,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _cepController = TextEditingController();
+  final TextEditingController _ufController = TextEditingController();
+  final TextEditingController _cidadeController = TextEditingController();
+  final TextEditingController _logradouroController = TextEditingController();
   late final HomeController _controller;
   late final ReactionDisposer _erroReaction;
+  late final ReactionDisposer _tipoBuscaReaction;
 
   @override
   void initState() {
@@ -49,18 +54,37 @@ class _HomePageState extends State<HomePage> {
         _controller.limparErro();
       },
     );
+
+    _tipoBuscaReaction = reaction(
+      (_) => _controller.tipoBusca,
+      (String tipo) {
+        if (tipo == 'cep') {
+          _ufController.clear();
+          _cidadeController.clear();
+          _logradouroController.clear();
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
     _erroReaction();
+    _tipoBuscaReaction();
     _cepController.dispose();
+    _ufController.dispose();
+    _cidadeController.dispose();
+    _logradouroController.dispose();
     super.dispose();
   }
 
   Future<void> _onConsultar() async {
     FocusScope.of(context).unfocus();
-    await _controller.buscarCep(_cepController.text);
+    if (_controller.tipoBusca == 'cep') {
+      await _controller.buscarCep(_cepController.text);
+    } else {
+      await _controller.buscarEndereco();
+    }
   }
 
   void _abrirHistorico() {
@@ -118,27 +142,91 @@ class _HomePageState extends State<HomePage> {
                       );
                     },
                   ),
+                  // Radio buttons para tipo de busca
                   Observer(
-                    builder: (_) => CepSearchForm(
-                      cepController: _cepController,
-                      onConsultar: _onConsultar,
-                      loading: _controller.loading,
+                    builder: (_) => Column(
+                      children: [
+                        RadioListTile<String>(
+                          title: const Text('Buscar por CEP'),
+                          value: 'cep',
+                          groupValue: _controller.tipoBusca,
+                          onChanged: (value) => _controller.alterarTipoBusca(value!),
+                        ),
+                        RadioListTile<String>(
+                          title: const Text('Buscar por Endereço'),
+                          value: 'endereco',
+                          groupValue: _controller.tipoBusca,
+                          onChanged: (value) => _controller.alterarTipoBusca(value!),
+                        ),
+                      ],
                     ),
+                  ),
+                  const SizedBox(height: AppMetrics.md),
+                  // Campos condicionais
+                  Observer(
+                    builder: (_) {
+                      if (_controller.tipoBusca == 'cep') {
+                        return CepSearchForm(
+                          cepController: _cepController,
+                          onConsultar: _onConsultar,
+                          loading: _controller.loading,
+                        );
+                      } else {
+                        return Column(
+                          children: [
+                            TextField(
+                              controller: _ufController,
+                              onChanged: (value) => _controller.ufBusca = value,
+                              decoration: const InputDecoration(labelText: 'UF'),
+                              maxLength: 2,
+                            ),
+                            TextField(
+                              controller: _cidadeController,
+                              onChanged: (value) => _controller.cidadeBusca = value,
+                              decoration: const InputDecoration(labelText: 'Cidade'),
+                            ),
+                            TextField(
+                              controller: _logradouroController,
+                              onChanged: (value) => _controller.logradouroBusca = value,
+                              decoration: const InputDecoration(labelText: 'Logradouro'),
+                            ),
+                            const SizedBox(height: AppMetrics.md),
+                            FilledButton.icon(
+                              onPressed: _controller.loading ? null : _onConsultar,
+                              icon: const Icon(Icons.search),
+                              label: const Text('Buscar Endereço'),
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: AppMetrics.md),
                   Observer(
                     builder: (_) {
-                      final ultimo = _controller.lastQueried;
-                      if (ultimo != null) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: AppMetrics.md),
-                          child: CepQueryResultPanel(address: ultimo),
-                        );
+                      if (_controller.tipoBusca == 'endereco') {
+                        if (_controller.enderecosEncontrados.isNotEmpty) {
+                          return Column(
+                            children: _controller.enderecosEncontrados.map((address) => 
+                              CepQueryResultPanel(address: address)
+                            ).toList(),
+                          );
+                        }
+                      } else {
+                        final ultimo = _controller.lastQueried;
+                        if (ultimo != null) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: AppMetrics.md),
+                            child: CepQueryResultPanel(address: ultimo),
+                          );
+                        }
                       }
                       if (!_controller.loading &&
                           (_controller.avisoBuscaInline == null ||
                               _controller.avisoBuscaInline!.isEmpty)) {
-                        return const EmptyCepSearchPlaceholder();
+                        return _controller.tipoBusca == 'cep'
+                            ? const EmptyCepSearchPlaceholder()
+                            : const EmptyAddressSearchPlaceholder();
                       }
                       return const SizedBox.shrink();
                     },

@@ -22,4 +22,19 @@ class ViaCepRepository {
 
     return ViaCepAddress.fromJson(data);
   }
+
+  Future<List<ViaCepAddress>> fetchByAddress(String uf, String cidade, String logradouro) async {
+    final encodedLogradouro = Uri.encodeComponent(logradouro);
+    final response = await _dio.get<dynamic>(
+      'https://viacep.com.br/ws/$uf/$cidade/$encodedLogradouro/json/',
+    );
+    final data = response.data;
+    if (data is! List) {
+      throw const FormatException('Resposta inválida da API ViaCEP.');
+    }
+
+    return data
+        .map((e) => ViaCepAddress.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 }

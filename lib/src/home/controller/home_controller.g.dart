@@ -106,6 +106,87 @@ mixin _$HomeController on _HomeController, Store {
     });
   }
 
+  late final _$tipoBuscaAtom =
+      Atom(name: '_HomeController.tipoBusca', context: context);
+
+  @override
+  String get tipoBusca {
+    _$tipoBuscaAtom.reportRead();
+    return super.tipoBusca;
+  }
+
+  @override
+  set tipoBusca(String value) {
+    _$tipoBuscaAtom.reportWrite(value, super.tipoBusca, () {
+      super.tipoBusca = value;
+    });
+  }
+
+  late final _$ufBuscaAtom =
+      Atom(name: '_HomeController.ufBusca', context: context);
+
+  @override
+  String get ufBusca {
+    _$ufBuscaAtom.reportRead();
+    return super.ufBusca;
+  }
+
+  @override
+  set ufBusca(String value) {
+    _$ufBuscaAtom.reportWrite(value, super.ufBusca, () {
+      super.ufBusca = value;
+    });
+  }
+
+  late final _$cidadeBuscaAtom =
+      Atom(name: '_HomeController.cidadeBusca', context: context);
+
+  @override
+  String get cidadeBusca {
+    _$cidadeBuscaAtom.reportRead();
+    return super.cidadeBusca;
+  }
+
+  @override
+  set cidadeBusca(String value) {
+    _$cidadeBuscaAtom.reportWrite(value, super.cidadeBusca, () {
+      super.cidadeBusca = value;
+    });
+  }
+
+  late final _$logradouroBuscaAtom =
+      Atom(name: '_HomeController.logradouroBusca', context: context);
+
+  @override
+  String get logradouroBusca {
+    _$logradouroBuscaAtom.reportRead();
+    return super.logradouroBusca;
+  }
+
+  @override
+  set logradouroBusca(String value) {
+    _$logradouroBuscaAtom.reportWrite(value, super.logradouroBusca, () {
+      super.logradouroBusca = value;
+    });
+  }
+
+  late final _$enderecosEncontradosAtom =
+      Atom(name: '_HomeController.enderecosEncontrados', context: context);
+
+  @override
+  List<ViaCepAddress> get enderecosEncontrados {
+    _$enderecosEncontradosAtom.reportRead();
+    return super.enderecosEncontrados;
+  }
+
+  @override
+  set enderecosEncontrados(List<ViaCepAddress> value) {
+    _$enderecosEncontradosAtom.reportWrite(value, super.enderecosEncontrados,
+        () {
+      super.enderecosEncontrados = value;
+    });
+  }
+
   late final _$inicializarAsyncAction =
       AsyncAction('_HomeController.inicializar', context: context);
 
@@ -120,6 +201,14 @@ mixin _$HomeController on _HomeController, Store {
   @override
   Future<void> buscarCep(String rawCep) {
     return _$buscarCepAsyncAction.run(() => super.buscarCep(rawCep));
+  }
+
+  late final _$buscarEnderecoAsyncAction =
+      AsyncAction('_HomeController.buscarEndereco', context: context);
+
+  @override
+  Future<void> buscarEndereco() {
+    return _$buscarEnderecoAsyncAction.run(() => super.buscarEndereco());
   }
 
   late final _$abrirRotaUltimoEnderecoAsyncAction =
@@ -146,6 +235,28 @@ mixin _$HomeController on _HomeController, Store {
   }
 
   @override
+  void alterarTipoBusca(String novoTipo) {
+    final _$actionInfo = _$_HomeControllerActionController.startAction(
+        name: '_HomeController.alterarTipoBusca');
+    try {
+      return super.alterarTipoBusca(novoTipo);
+    } finally {
+      _$_HomeControllerActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void limparBuscaEndereco() {
+    final _$actionInfo = _$_HomeControllerActionController.startAction(
+        name: '_HomeController.limparBuscaEndereco');
+    try {
+      return super.limparBuscaEndereco();
+    } finally {
+      _$_HomeControllerActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 history: ${history},
@@ -153,7 +264,12 @@ lastQueried: ${lastQueried},
 loading: ${loading},
 errorMessage: ${errorMessage},
 avisoBuscaInline: ${avisoBuscaInline},
-avisoBuscaCepDigitado: ${avisoBuscaCepDigitado}
+avisoBuscaCepDigitado: ${avisoBuscaCepDigitado},
+tipoBusca: ${tipoBusca},
+ufBusca: ${ufBusca},
+cidadeBusca: ${cidadeBusca},
+logradouroBusca: ${logradouroBusca},
+enderecosEncontrados: ${enderecosEncontrados}
     ''';
   }
 }
