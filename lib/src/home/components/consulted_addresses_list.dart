@@ -37,7 +37,7 @@ class ConsultedAddressesList extends StatelessWidget {
             return ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              title: Text(item.cep.isNotEmpty ? item.cep : '—'),
+              title: (!item.erro) ? Text(item.cep.isNotEmpty ? item.cep : '—') : Text('CEP: ${item.cep} (não encontrado)', style: TextStyle(color: Theme.of(context).colorScheme.error)),
               subtitle: Text(
                 '${item.logradouro} ${item.bairro}'.trim().isEmpty
                     ? item.localidade

@@ -13,7 +13,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
-  dio: ^4.0.6
+  dio: ^5.9.2
   flutter_mobx: ^2.0.4
   mobx: ^2.0.6+1
   hive: ^2.1.0
@@ -23,8 +23,8 @@ dependencies:
   path_provider_android: ^2.0.14
   path_provider_ios: ^2.0.9
   map_launcher: ^4.5.0
-  geocoding: ^2.1.1
-  geolocator: 14.0.0
+  geocoding: ^4.0.0
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

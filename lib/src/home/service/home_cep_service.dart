@@ -4,8 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:map_launcher/map_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../model/via_cep_address.dart';
+import '../../shared/url_opener.dart';
 import '../repositories/address_history_repository.dart';
 import '../repositories/via_cep_repository.dart';
 
@@ -28,29 +30,64 @@ class HomeCepService {
     }
     try {
       final address = await _remote.fetchByCep(digits);
-      if (address.erro) {
-        throw StateError('CEP não encontrado na base ViaCEP.');
-      }
       await _local.addToFront(address);
       return address;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw StateError(_messageFromDio(e));
     }
   }
 
-  Future<void> abrirMapa(ViaCepAddress address) async {
-    List<Location> locations;
-    try {
-      locations = await locationFromAddress(address.consultaGeocoding);
-    } catch (_) {
-      throw StateError('Não foi possível geocodificar o endereço.');
+  /**
+   * Busca a geocodificação do endereço usando a API do Google Maps (para web)
+   */
+  Future<void> _geocodeWeb(ViaCepAddress address) async {
+    final response = await Dio().get(
+      'https://maps.googleapis.com/maps/api/geocode/json',
+      queryParameters: {
+        'address': address.consultaGeocoding,
+        'key': 'AIzaSyBiiAqtNzXC5mdSHdSjgNbLLZLGxYhQCPU',
+      },
+    );
+
+    final data = response.data as Map<String, dynamic>;
+    if (data['status'] != 'OK' || (data['results'] as List).isEmpty) {
+      throw StateError('Endereço não encontrado.');
     }
+
+    final location = data['results'][0]['geometry']['location'] as Map<String, dynamic>;
+    final loc = Location(
+      latitude: location['lat'] as double,
+      longitude: location['lng'] as double,
+      timestamp: DateTime.now().toUtc(),
+    );
+
+    final url = Uri.https(
+      'www.google.com',
+      '/maps/dir/',
+      {
+        'api': '1',
+        'destination': '${loc.latitude},${loc.longitude}',
+        'origin': 'My Location',
+        'travelmode': 'driving',
+      },
+    ).toString();
+    print('Abrindo Google Maps web: $url');
+    openUrl(url);
+  }
+
+  /**
+   * Busca a geocodificação do endereço usando o plugin geocoding (para Android/iOS)
+   */
+  Future<void> _geocodeNativoMobile(ViaCepAddress address) async {
+    List<Location> locations;
+
+    locations = await locationFromAddress(address.consultaGeocoding);
+
     if (locations.isEmpty) {
       throw StateError('Endereço não encontrado para abrir no mapa.');
     }
     final loc = locations.first;
     final destino = Coords(loc.latitude, loc.longitude);
-
     final origem = await _obterCoordenadasLocalAtual();
 
     final maps = await MapLauncher.installedMaps;
@@ -66,6 +103,21 @@ class HomeCepService {
       originTitle: 'Localização atual',
       directionsMode: DirectionsMode.driving,
     );
+    
+  }
+
+  Future<void> abrirMapa(ViaCepAddress address) async {
+    try {      
+      // Verifica se está executando via Navegador Web (chrome/edge) ou via Android/iOS. 
+      //O geocoding tradicional não funciona no navegador, então usamos a API do Google Maps para web.
+      if (kIsWeb) {
+        await _geocodeWeb(address);
+      } else {
+        await _geocodeNativoMobile(address);
+      }
+    } catch (e) {
+      throw StateError('Não foi possível geocodificar o endereço.');
+    }    
   }
 
   Future<Coords> _obterCoordenadasLocalAtual() async {
@@ -116,11 +168,11 @@ class HomeCepService {
 
   String _onlyDigits(String value) => value.replaceAll(RegExp(r'\D'), '');
 
-  String _messageFromDio(DioError e) {
+  String _messageFromDio(DioException e) {
     switch (e.type) {
-      case DioErrorType.connectTimeout:
-      case DioErrorType.sendTimeout:
-      case DioErrorType.receiveTimeout:
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
         return 'Tempo esgotado. Verifique a conexão.';
       default:
         if (e.error is SocketException) {

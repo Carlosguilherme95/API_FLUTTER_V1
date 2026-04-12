@@ -93,7 +93,7 @@ abstract class _HomeController with Store {
   @action
   Future<void> abrirRotaUltimoEndereco() async {
     final addr = lastQueried;
-    if (addr == null) return;
+    if (addr == null || addr.erro) return;
     limparErro();
     try {
       await _service.abrirMapa(addr);

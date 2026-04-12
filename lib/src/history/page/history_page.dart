@@ -63,9 +63,7 @@ class _HistoryPageState extends State<HistoryPage> {
               return ListTile(
                 leading: const Icon(Icons.location_on_outlined),
                 title: Text(item.cep.isNotEmpty ? item.cep : '—'),
-                subtitle: Text(
-                  '${item.logradouro} · ${item.bairro}\n${item.localidade} - ${item.uf}',
-                ),
+                subtitle: (!item.erro) ? Text('${item.logradouro} · ${item.bairro}\n${item.localidade} - ${item.uf}') : Text('Não encontrado', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                 isThreeLine: true,
               );
             },

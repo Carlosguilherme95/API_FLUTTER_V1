@@ -15,6 +15,11 @@ class ViaCepRepository {
     if (data is! Map<String, dynamic>) {
       throw const FormatException('Resposta inválida da API ViaCEP.');
     }
+
+    // Adicionar o CEP ao JSON, quando da erro ele não vem no JSON 
+    //mas quero ele no json para exibir na UI que o CEP consultado não foi encontrado
+    data['cep'] = cep;
+
     return ViaCepAddress.fromJson(data);
   }
 }

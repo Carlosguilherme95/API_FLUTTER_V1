@@ -26,7 +26,7 @@ class ViaCepAddress {
   final String? siafi;
 
   factory ViaCepAddress.fromJson(Map<String, dynamic> json) {
-    final erro = json['erro'] == true;
+    final erro = json['erro'] == true || json['erro'] == 'true';
     return ViaCepAddress(
       erro: erro,
       cep: json['cep'] as String? ?? '',

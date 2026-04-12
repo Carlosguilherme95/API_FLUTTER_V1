@@ -36,6 +36,10 @@ class CepQueryResultPanel extends StatelessWidget {
             ),
             const SizedBox(height: AppMetrics.sm),
             Text(address.cep, style: theme.textTheme.headlineSmall),
+            if (address.erro)
+              Text('CEP não encontrado!', style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.error,
+              )),
             const SizedBox(height: AppMetrics.md),
             _linha('Logradouro', address.logradouro, theme),
             _linha('Complemento', address.complemento, theme),
