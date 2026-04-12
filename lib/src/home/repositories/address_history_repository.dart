@@ -29,6 +29,15 @@ class AddressHistoryRepository {
     );
   }
 
+  Future<ViaCepAddress?> findByCep(String cep) async {
+    final all = await readAll();
+    final normalized = _digitsOnly(cep);
+    return all.cast<ViaCepAddress?>().firstWhere(
+          (a) => _digitsOnly(a!.cep) == normalized,
+          orElse: () => null,
+        );
+  }
+
   String _digitsOnly(String value) =>
       value.replaceAll(RegExp(r'\D'), '');
 }

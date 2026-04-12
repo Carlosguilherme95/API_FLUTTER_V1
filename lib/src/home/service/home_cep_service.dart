@@ -28,6 +28,16 @@ class HomeCepService {
             : 'O CEP deve ter exatamente 8 números (digitados: ${digits.length}).',
       );
     }
+
+    // Primeiro, verifica se o CEP já está no cache local
+    final cached = await _local.findByCep(digits);
+    if (cached != null) {
+      // Retorna do cache se encontrado
+      await _local.addToFront(cached); // Move para o topo do histórico
+      return cached;
+    }
+
+    // Se não está no cache, consulta a API
     try {
       final address = await _remote.fetchByCep(digits);
       await _local.addToFront(address);
