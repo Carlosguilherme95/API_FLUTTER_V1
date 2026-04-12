@@ -107,6 +107,7 @@ Se executar no web e quiser usar rota ou geocodificação via Google Maps, confi
 
 - `web/index.html` contém o script do Google Maps com a chave de API
 - a chave esteja corretamente configurada e autorizada para a API necessária
+- `lib\src\home\service\home_cep_service.dart` também contém a chave de API no método `_geocodeWeb`
 
 ### Permissões de localização
 
