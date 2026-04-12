@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Consulta CEP'),
+        title: const Text('Consulta CEP/Endereço'),
         actions: [
           IconButton(
             tooltip: 'Histórico de consultas',

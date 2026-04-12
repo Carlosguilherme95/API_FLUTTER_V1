@@ -149,6 +149,9 @@ abstract class _HomeController with Store {
       final items = await _service.loadHistory();
       history.clear();
       history.addAll(items);
+      if (items.isNotEmpty) {
+        lastQueried = items.first;
+      }
     } on FormatException catch (e) {
       avisoBuscaInline = e.message;
     } on StateError catch (e) {
