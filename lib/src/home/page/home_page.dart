@@ -144,23 +144,28 @@ class _HomePageState extends State<HomePage> {
                   ),
                   // Radio buttons para tipo de busca
                   Observer(
-                    builder: (_) => Column(
+                    builder: (_) => Row(
                       children: [
-                        RadioListTile<String>(
-                          title: const Text('Buscar por CEP'),
-                          value: 'cep',
-                          groupValue: _controller.tipoBusca,
-                          onChanged: (value) => _controller.alterarTipoBusca(value!),
+                        Expanded(
+                          child: RadioListTile<String>(
+                            title: const Text('Buscar por CEP'),
+                            value: 'cep',
+                            groupValue: _controller.tipoBusca,
+                            onChanged: (value) => _controller.alterarTipoBusca(value!),
+                          ),
                         ),
-                        RadioListTile<String>(
-                          title: const Text('Buscar por Endereço'),
-                          value: 'endereco',
-                          groupValue: _controller.tipoBusca,
-                          onChanged: (value) => _controller.alterarTipoBusca(value!),
+                        Expanded(
+                          child: RadioListTile<String>(
+                            title: const Text('Buscar por Endereço'),
+                            value: 'endereco',
+                            groupValue: _controller.tipoBusca,
+                            onChanged: (value) => _controller.alterarTipoBusca(value!),
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  const Divider(),
                   const SizedBox(height: AppMetrics.md),
                   // Campos condicionais
                   Observer(
@@ -174,21 +179,45 @@ class _HomePageState extends State<HomePage> {
                       } else {
                         return Column(
                           children: [
-                            TextField(
-                              controller: _ufController,
-                              onChanged: (value) => _controller.ufBusca = value,
-                              decoration: const InputDecoration(labelText: 'UF'),
-                              maxLength: 2,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _ufController,
+                                    onChanged: (value) => _controller.ufBusca = value,
+                                    keyboardType: TextInputType.text,
+                                    maxLength: 2,
+                                    enabled: !_controller.loading,
+                                    decoration: const InputDecoration(
+                                      labelText: 'UF',
+                                      border: OutlineInputBorder(),
+                                      counterText: '',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: AppMetrics.sm),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _cidadeController,
+                                    onChanged: (value) => _controller.cidadeBusca = value,
+                                    enabled: !_controller.loading,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Cidade',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            TextField(
-                              controller: _cidadeController,
-                              onChanged: (value) => _controller.cidadeBusca = value,
-                              decoration: const InputDecoration(labelText: 'Cidade'),
-                            ),
+                            const SizedBox(height: AppMetrics.md),
                             TextField(
                               controller: _logradouroController,
                               onChanged: (value) => _controller.logradouroBusca = value,
-                              decoration: const InputDecoration(labelText: 'Logradouro'),
+                              enabled: !_controller.loading,
+                              decoration: const InputDecoration(
+                                labelText: 'Logradouro',
+                                border: OutlineInputBorder(),
+                              ),
                             ),
                             const SizedBox(height: AppMetrics.md),
                             FilledButton.icon(

@@ -36,10 +36,13 @@ class CepSearchForm extends StatelessWidget {
           onSubmitted: (_) => onConsultar(),
         ),
         const SizedBox(height: AppMetrics.md),
-        FilledButton.icon(
-          onPressed: loading ? null : onConsultar,
-          icon: const Icon(Icons.search),
-          label: const Text('Nova consulta'),
+        Align(
+          alignment: Alignment.center,
+          child: FilledButton.icon(
+            onPressed: loading ? null : onConsultar,
+            icon: const Icon(Icons.search),
+            label: const Text('Buscar CEP'),
+          ),
         ),
       ],
     );

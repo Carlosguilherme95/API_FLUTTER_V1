@@ -34,7 +34,7 @@ class CepSearchNotFoundPanel extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Busca sem resultado',
+                    'Resultado da busca',
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: theme.colorScheme.onErrorContainer,
                     ),
