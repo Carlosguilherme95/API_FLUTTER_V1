@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -69,11 +70,15 @@ class HomeCepService {
    * Busca a geocodificação do endereço usando a API do Google Maps (para web)
    */
   Future<void> _geocodeWeb(ViaCepAddress address) async {
+    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+    if (apiKey.isEmpty) {
+      throw StateError('Chave de API do Google Maps não configurada. Configure GOOGLE_MAPS_API_KEY no arquivo .env');
+    }
     final response = await Dio().get(
       'https://maps.googleapis.com/maps/api/geocode/json',
       queryParameters: {
         'address': address.consultaGeocoding,
-        'key': 'AIzaSyBiiAqtNzXC5mdSHdSjgNbLLZLGxYhQCPU',
+        'key': apiKey,
       },
     );
 
@@ -144,7 +149,7 @@ class HomeCepService {
         await _geocodeNativoMobile(address);
       }
     } catch (e) {
-      throw StateError('Não foi possível geocodificar o endereço.');
+      throw StateError('Não foi possível geocodificar o endereço. ' + e.toString()); 
     }    
   }
 
