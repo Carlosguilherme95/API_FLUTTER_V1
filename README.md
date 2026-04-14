@@ -141,7 +141,7 @@ Isso é necessário para o `geolocator` obter a localização atual.
 
 ## Notas
 
-- Use `build_runner` sempre que alterar arquivos anotados com MobX/Hive
+- Use `build_runner` quando quiser alterar arquivos anotados com MobX/Hive
 - O app oferece dois modos de busca: CEP e Endereço
 - Os placeholders e mensagens mudam conforme o modo selecionado
 
