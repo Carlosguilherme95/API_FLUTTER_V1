@@ -106,8 +106,13 @@ lib/
 Se executar no web e quiser usar rota ou geocodificação via Google Maps, confirme que:
 
 - `web/index.html` contém o script do Google Maps com a chave de API
-- a chave esteja corretamente configurada e autorizada para a API necessária
+- a chave esteja corretamente configurada e autorizada para a API necessária (gerar token e configurar no arquivo `.env` na raiz do projeto)
 - `lib\src\home\service\home_cep_service.dart` também contém a chave de API no método `_geocodeWeb`
+
+    Como Gerar o token:
+    1. Acesar https://console.cloud.google.com/
+    2. Criar um projeto e acessá-lo 
+    3. No menu biblioteca > encontrar API Geocoding > Ativar
 
 ### Permissões de localização
 
